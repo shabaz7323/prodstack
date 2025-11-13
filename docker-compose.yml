@@ -1,0 +1,49 @@
+services:
+  backend:
+    container_name: prodstack-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: shabaz7323/prodstack-backend:latest
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    restart: always
+
+  frontend:
+    container_name: prodstack-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: shabaz7323/prodstack-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always
+
+  nginx:
+    container_name: prodstack-nginx
+    image: nginx:alpine
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+    restart: always
+
+  mongo:
+    container_name: prodstack-mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+volumes:
+  mongo_data:
